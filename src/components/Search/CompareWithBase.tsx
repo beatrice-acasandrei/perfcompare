@@ -1,6 +1,7 @@
 import { useState } from 'react';
 
 import { Typography } from '@mui/material';
+import { Link } from '@mui/material';
 import Divider from '@mui/material/Divider';
 import Grid from '@mui/material/Grid';
 import { VariantType, useSnackbar } from 'notistack';
@@ -12,6 +13,8 @@ import { Strings } from '../../resources/Strings';
 import { CompareCardsStyles, SearchStyles, Spacing } from '../../styles';
 import type { Changeset, Repository } from '../../types/state';
 import { Framework } from '../../types/types';
+import { truncateHash } from '../../utils/helpers';
+import { getOldCompareWithBaseViewURL } from '../../utils/helpers';
 import CancelAndCompareButtons from './CancelAndCompareButtons';
 import EditButton from './EditButton';
 import SearchComponent from './SearchComponent';
@@ -92,7 +95,6 @@ function CompareWithBase({
   const [baseRepository, setBaseRepository] = useState(baseRepo);
   const [newRepository, setNewRepository] = useState(newRepo);
   const [formIsDisplayed, setFormIsDisplayed] = useState(!hasEditButton);
-
   const mode = useAppSelector((state) => state.theme.mode);
   const styles = CompareCardsStyles(mode);
   const dropDownStyles = SearchStyles(mode);
@@ -233,6 +235,29 @@ function CompareWithBase({
             {strings.base.title}
           </Typography>
           <p className='compare-card-tagline'>{strings.base.tagline}</p>
+          {hasEditButton && (
+            <p className='compare-card-tagline'>
+              Perfherder comparisons for:
+              {newInProgressRevs.map((item) => (
+                <>
+                  <Link
+                    key={item.id}
+                    href={getOldCompareWithBaseViewURL(
+                      baseRepository,
+                      baseRev?.revision,
+                      newRepository,
+                      item.revision,
+                      frameworkIdVal,
+                    )}
+                    target='_blank'
+                    title={`${Strings.components.revisionRow.title.jobLink}`}
+                  >
+                    {truncateHash(item.revision)}
+                  </Link>{' '}
+                </>
+              ))}
+            </p>
+          )}
         </div>
         <div
           className='compare-card-img compare-card-img--base'
